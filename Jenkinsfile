@@ -53,13 +53,17 @@ pipeline {
 
           steps {
             unstash 'code'
-            ci/unit-test-app.sh
+            sh 'ci/unit-test-app.sh'
             junit 'app/build/test-results/test/TEST-*.xml'
           }
         }
-
       }
     }
 
+    post {
+      cleanup {
+        deleteDir() /* clean up our workspace */
+      }
+    }
   }
 }
