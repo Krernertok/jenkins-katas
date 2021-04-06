@@ -51,11 +51,9 @@ pipeline {
               image 'gradle:jdk11'
             }
           }
-
           options {
             skipDefaultCheckout(true)
           }
-
           steps {
             unstash 'code'
             sh 'ci/unit-test-app.sh'
@@ -70,15 +68,12 @@ pipeline {
         beforeAgent true
         branch "master"
       }
-
       environment {
         DOCKERCREDS = credentials('docker_login')
       }
-
       options {
         skipDefaultCheckout(true)
       }
-
       steps {
         unstash 'code' //unstash the repository code
         sh 'ci/build-docker.sh'
@@ -92,15 +87,14 @@ pipeline {
 
     stage('Run component test') {
       when{
-        not {
-          branch "dev/*"
+        anyOf {
+          branch "master"
+          changeRequest()
         }
       }
-
       options {
         skipDefaultCheckout()
       }
-
       steps {
         unstash 'code'
         sh 'ci/component-test.sh'
