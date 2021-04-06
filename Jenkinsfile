@@ -59,11 +59,10 @@ pipeline {
         }
       }
     }
-
-    post {
-      cleanup {
-        deleteDir() /* clean up our workspace */
-      }
+  }
+  post {
+    cleanup {
+      deleteDir() /* clean up our workspace */
     }
   }
 }
