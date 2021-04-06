@@ -10,7 +10,7 @@ pipeline {
       }
 
       steps {
-        stash excludes: '.git', name: 'code'
+        stash(excludes: '.git', name: 'code')
       }
     }
 
@@ -37,7 +37,7 @@ pipeline {
             unstash 'code'
             sh 'ci/build-app.sh'
             archiveArtifacts 'app/build/libs/'
-            stash name: 'code'
+            stash 'code'
 
             sh 'ls -lAh'
             deleteDir()
@@ -63,11 +63,37 @@ pipeline {
           }
         }
       }
+
+      stage('Run component test') {
+        when{
+          not {
+            branch "dev/*"
+          }
+        }
+
+        options {
+          skipDefaultCheckout()
+        }
+
+        steps {
+          unstash 'code'
+          sh 'ci/component-test.sh'
+        }
+      }
     }
 
     stage('Push Docker app') {
+      when {
+        beforeAgent true
+        branch "master"
+      }
+
       environment {
         DOCKERCREDS = credentials('docker_login')
+      }
+
+      options {
+        skipDefaultCheckout(true)
       }
 
       steps {
